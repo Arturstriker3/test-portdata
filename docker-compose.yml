@@ -10,7 +10,7 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
     volumes:
-      - ./db/data:/var/lib/mysql
+      - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -19,6 +19,9 @@ services:
       test: ["CMD", "mysqladmin", "ping", "--silent"]
       interval: 10s
       retries: 5
+
+volumes:
+  db_data:
 
 networks:
   app-network:
