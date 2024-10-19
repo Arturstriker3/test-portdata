@@ -2,13 +2,14 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:latest
+    image: mysql:8.0
     container_name: mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: portdata_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - db_data:/var/lib/mysql
     ports:

@@ -8,7 +8,7 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Yatec Test API',
+      title: 'Portdata Test API',
       version: '1.0.0',
       description: 'API Docs',
     },
