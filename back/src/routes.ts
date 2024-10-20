@@ -7,6 +7,7 @@ const protectedRoutes = Router();
 // Public
 routes.get('/contacts/:id', new ContactController().getOneContactById);
 routes.get('/contacts', new ContactController().getAllContacts);
+routes.post('/contacts', new ContactController().createContact);
 
 routes.use(protectedRoutes);
 

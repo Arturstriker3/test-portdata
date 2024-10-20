@@ -218,4 +218,103 @@ export class ContactController {
       next(error);
     }
   }
+
+  /**
+   * @swagger
+   * /contacts:
+   *   post:
+   *     tags:
+   *       - Contacts
+   *     summary: Create a new contact
+   *     description: Creates a new contact in the database.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 example: "Artur Daniel"
+   *               phone:
+   *                 type: string
+   *                 example: "79900000000"
+   *             required:
+   *               - name
+   *               - phone
+   *     responses:
+   *       201:
+   *         description: Contact created successfully.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id:
+   *                   type: integer
+   *                   example: 1
+   *                 name:
+   *                   type: string
+   *                   example: "John Doe"
+   *                 phone:
+   *                   type: string
+   *                   example: "+1-202-555-0143"
+   *       400:
+   *         description: Bad request. Invalid parameters.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Name and phone are required."
+   *       500:
+   *         description: Internal server error.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Error creating contact"
+   */
+
+  async createContact(req: Request, res: Response, next: NextFunction) {
+    const { name, phone } = req.body;
+
+    try {
+      if (!name || !phone) {
+        return next(new BadRequestError("Name and phone are required."));
+      }
+
+      const validFields = ["name", "phone"];
+      const extraFields = Object.keys(req.body).filter(
+        (field) => !validFields.includes(field)
+      );
+
+      if (extraFields.length > 0) {
+        return next(
+          new BadRequestError(`Invalid parameters: ${extraFields.join(", ")}`)
+        );
+      }
+
+      const phoneRegex = /^\d{2}9\d{8}$/;
+      if (!phoneRegex.test(phone)) {
+        return next(
+          new BadRequestError("Phone must be in the format XX9XXXXXXXX.")
+        );
+      }
+
+      const contact = contactRepository.create({ name, phone });
+
+      await contactRepository.save(contact);
+
+      return res.status(201).json(contact);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
