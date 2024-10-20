@@ -91,6 +91,7 @@
                   </button>
                   <button
                     class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    @click="deleteContact(contact.id)"
                   >
                     Excluir
                   </button>
@@ -345,9 +346,29 @@
             }
           };
 
-          const deleteContact = (id) => {
-            alert(`Delete contact with ID: ${id}`);
-            // Adicione a lógica de exclusão aqui
+          const deleteContact = async (id) => {
+            if (!confirm("Deseja realmente excluir este contato?")) return;
+
+            try {
+              const response = await fetch(
+                `http://localhost:5050/contacts/${id}`,
+                {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                }
+              );
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(
+                  errorData.message || "Falha ao excluir o contato"
+                );
+              }
+
+              await fetchContacts();
+            } catch (error) {
+              return alert(error.message);
+            }
           };
 
           const formatPhoneNumber = (phoneNumber) => {
