@@ -73,7 +73,7 @@
             </thead>
             <tbody>
               <tr v-for="contact in contacts" :key="contact.id">
-                <td class="px-4 py-2">{{ contact.id }} {{ contact.name }}</td>
+                <td class="px-4 py-2">{{ contact.name }}</td>
                 <td class="px-4 py-2">
                   {{ formatPhoneNumber(contact.phone) }}
                 </td>
