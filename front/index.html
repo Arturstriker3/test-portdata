@@ -8,7 +8,6 @@
 
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/inputmask/dist/inputmask.min.js"></script>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;1,700&display=swap"
@@ -43,7 +42,8 @@
           </div>
           <nav class="space-x-6">
             <button
-              class="text-white hover:text-black hover:bg-gray-50 hover:cursor-pointer flex items-center space-x-2 border-2 border-white rounded-md px-4 py-2"
+              class="text-white bg-green-600 hover:text-black hover:bg-gray-50 hover:cursor-pointer flex items-center space-x-2 border-2 border-white rounded-md px-4 py-2"
+              @click="toggleCreateModal"
             >
               <span class="material-icons">add</span>
               <span class="hidden md:inline">Adicionar</span>
@@ -59,39 +59,116 @@
           Contatos {{ pageName }}
         </h2>
 
-        <table class="min-w-full table-auto">
-          <thead>
-            <tr>
-              <th class="px-4 py-2 text-left">Nome</th>
-              <th class="px-4 py-2 text-left">Telefone</th>
-              <th class="px-4 py-2 text-left">Data de Criação</th>
-              <th class="px-4 py-2">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="contact in contacts" :key="contact.id">
-              <td class="px-4 py-2">{{ contact.name }}</td>
-              <td class="px-4 py-2">{{ formatPhoneNumber(contact.phone) }}</td>
-              <td class="px-4 py-2">
-                {{ new Date(contact.createdAt).toLocaleDateString() }}
-              </td>
-              <td class="px-4 py-2 flex space-x-2 justify-center">
-                <button
-                  class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                  @click="editContact(contact.id)"
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left">Nome</th>
+                <th class="px-4 py-2 text-left">Telefone</th>
+                <th class="hidden sm:table-cell px-4 py-2 text-left">
+                  Data de Criação
+                </th>
+                <th class="px-4 py-2">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="contact in contacts" :key="contact.id">
+                <td class="px-4 py-2">{{ contact.name }}</td>
+                <td class="px-4 py-2">
+                  {{ formatPhoneNumber(contact.phone) }}
+                </td>
+                <td class="hidden sm:table-cell px-4 py-2">
+                  {{ new Date(contact.createdAt).toLocaleDateString() }}
+                </td>
+                <td
+                  class="px-4 py-2 flex flex-col md:flex-row space-x-0 md:space-x-2 justify-center"
                 >
-                  Editar
-                </button>
-                <button
-                  class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  @click="deleteContact(contact.id)"
+                  <button
+                    class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mb-2 md:mb-0"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  >
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div
+        v-if="showCreateModal"
+        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+      >
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+          <h3 class="text-xl font-semibold mb-4 text-blue-500">
+            Adicionar Contato
+          </h3>
+
+          <form @submit.prevent="createContact">
+            <div class="mb-4">
+              <label class="block text-gray-700">Nome</label>
+              <input
+                v-model="newContact.name"
+                type="text"
+                class="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-gray-700">Telefone</label>
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md text-gray-500"
+                  >+55</span
                 >
-                  Excluir
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <input
+                  v-model="newContact.ddd"
+                  type="text"
+                  class="w-1/6 p-2 border rounded-r-md"
+                  placeholder="XX"
+                  maxlength="2"
+                  required
+                  @input="onDddInput"
+                />
+                <span
+                  class="inline-flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md text-gray-500"
+                  >9</span
+                >
+                <input
+                  v-model="newContact.phone"
+                  type="text"
+                  class="w-full p-2 border rounded-r-md"
+                  placeholder="XXXXXXXX"
+                  maxlength="8"
+                  required
+                  @input="onPhoneInput"
+                />
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+              <button
+                @click="showCreateModal = false"
+                type="button"
+                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -106,6 +183,8 @@
         setup() {
           const pageName = ref("Portdata");
           const contacts = ref([]);
+          const showCreateModal = ref(false);
+          const newContact = ref({ name: "", ddd: "", phone: "" });
 
           const fetchContacts = async () => {
             try {
@@ -135,6 +214,33 @@
             }
           };
 
+          const createContact = async () => {
+            if (!newContact.value.name || !newContact.value.phone)
+              return alert("Preencha todos os campos!");
+
+            try {
+              const response = await fetch(`http://localhost:5050/contacts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  phone: `${newContact.value.ddd}9${newContact.value.phone}`,
+                  name: newContact.value.name,
+                }),
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Falha ao criar contato");
+              }
+
+              await fetchContacts();
+              showCreateModal.value = false;
+              newContact.value = { name: "", ddd: "", phone: "" };
+            } catch (error) {
+              return alert(error.message);
+            }
+          };
+
           const editContact = (id) => {
             alert(`Edit contact with ID: ${id}`);
             // Adicione a lógica de edição aqui
@@ -157,6 +263,22 @@
             }
           };
 
+          const toggleCreateModal = () => {
+            showCreateModal.value = !showCreateModal.value;
+          };
+
+          const onDddInput = (event) => {
+            newContact.value.ddd = event.target.value
+              .replace(/\D/g, "")
+              .slice(0, 2);
+          };
+
+          const onPhoneInput = (event) => {
+            newContact.value.phone = event.target.value
+              .replace(/\D/g, "")
+              .slice(0, 8);
+          };
+
           onMounted(() => {
             fetchContacts();
           });
@@ -164,9 +286,15 @@
           return {
             pageName,
             contacts,
+            newContact,
             editContact,
             deleteContact,
             formatPhoneNumber,
+            toggleCreateModal,
+            showCreateModal,
+            onDddInput,
+            onPhoneInput,
+            createContact,
           };
         },
       };
