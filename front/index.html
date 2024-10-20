@@ -73,7 +73,7 @@
             </thead>
             <tbody>
               <tr v-for="contact in contacts" :key="contact.id">
-                <td class="px-4 py-2">{{ contact.name }}</td>
+                <td class="px-4 py-2">{{ contact.id }} {{ contact.name }}</td>
                 <td class="px-4 py-2">
                   {{ formatPhoneNumber(contact.phone) }}
                 </td>
@@ -258,6 +258,7 @@
           const showCreateModal = ref(false);
           const newContact = ref({ name: "", ddd: "", phone: "" });
           const showEditModal = ref(false);
+          const editContactId = ref(null);
 
           const fetchContacts = async () => {
             try {
@@ -316,14 +317,17 @@
 
           const editContact = async (id, name, phone) => {
             try {
-              const response = await fetch(`http://localhost:5050/contacts`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  phone: `${newContact.value.ddd}9${newContact.value.phone}`,
-                  name: newContact.value.name,
-                }),
-              });
+              const response = await fetch(
+                `http://localhost:5050/contacts/${editContactId.value}`,
+                {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    phone: `${newContact.value.ddd}9${newContact.value.phone}`,
+                    name: newContact.value.name,
+                  }),
+                }
+              );
 
               if (!response.ok) {
                 const errorData = await response.json();
@@ -333,6 +337,7 @@
               }
 
               await fetchContacts();
+              editContactId.value = null;
               showEditModal.value = false;
               newContact.value = { name: "", ddd: "", phone: "" };
             } catch (error) {
@@ -358,6 +363,7 @@
           };
 
           const toggleCreateModal = () => {
+            newContact.value = { name: "", ddd: "", phone: "" };
             showCreateModal.value = !showCreateModal.value;
           };
 
@@ -374,6 +380,8 @@
           };
 
           const toggleEditModal = (id, name, phone) => {
+            editContactId.value = id;
+
             const ddd = phone.slice(0, 2);
 
             const phoneNumber = phone.slice(2).replace(/^9/, "");
