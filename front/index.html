@@ -85,6 +85,7 @@
                 >
                   <button
                     class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mb-2 md:mb-0"
+                    @click="toggleEditModal(contact.id, contact.name, contact.phone)"
                   >
                     Editar
                   </button>
@@ -170,6 +171,77 @@
           </form>
         </div>
       </div>
+
+      <div
+        v-if="showEditModal"
+        class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+      >
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+          <h3 class="text-xl font-semibold mb-4 text-blue-500">
+            Editar Contato
+          </h3>
+
+          <form @submit.prevent="editContact">
+            <div class="mb-4">
+              <label class="block text-gray-700">Nome</label>
+              <input
+                v-model="newContact.name"
+                type="text"
+                class="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-gray-700">Telefone</label>
+              <div class="flex">
+                <span
+                  class="inline-flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md text-gray-500"
+                  >+55</span
+                >
+                <input
+                  v-model="newContact.ddd"
+                  type="text"
+                  class="w-1/6 p-2 border rounded-r-md"
+                  placeholder="XX"
+                  maxlength="2"
+                  required
+                  @input="onDddInput"
+                />
+                <span
+                  class="inline-flex items-center px-3 bg-gray-100 border border-r-0 rounded-l-md text-gray-500"
+                  >9</span
+                >
+                <input
+                  v-model="newContact.phone"
+                  type="text"
+                  class="w-full p-2 border rounded-r-md"
+                  placeholder="XXXXXXXX"
+                  maxlength="8"
+                  required
+                  @input="onPhoneInput"
+                />
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+              <button
+                @click="showEditModal = false"
+                type="button"
+                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Salvar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script type="module">
@@ -185,6 +257,7 @@
           const contacts = ref([]);
           const showCreateModal = ref(false);
           const newContact = ref({ name: "", ddd: "", phone: "" });
+          const showEditModal = ref(false);
 
           const fetchContacts = async () => {
             try {
@@ -241,9 +314,30 @@
             }
           };
 
-          const editContact = (id) => {
-            alert(`Edit contact with ID: ${id}`);
-            // Adicione a lógica de edição aqui
+          const editContact = async (id, name, phone) => {
+            try {
+              const response = await fetch(`http://localhost:5050/contacts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  phone: `${newContact.value.ddd}9${newContact.value.phone}`,
+                  name: newContact.value.name,
+                }),
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(
+                  errorData.message || "Falha ao editar o contato"
+                );
+              }
+
+              await fetchContacts();
+              showEditModal.value = false;
+              newContact.value = { name: "", ddd: "", phone: "" };
+            } catch (error) {
+              return alert(error.message);
+            }
           };
 
           const deleteContact = (id) => {
@@ -279,6 +373,16 @@
               .slice(0, 8);
           };
 
+          const toggleEditModal = (id, name, phone) => {
+            const ddd = phone.slice(0, 2);
+
+            const phoneNumber = phone.slice(2).replace(/^9/, "");
+
+            newContact.value = { id, name, ddd, phone: phoneNumber };
+
+            showEditModal.value = !showEditModal.value;
+          };
+
           onMounted(() => {
             fetchContacts();
           });
@@ -295,6 +399,8 @@
             onDddInput,
             onPhoneInput,
             createContact,
+            showEditModal,
+            toggleEditModal,
           };
         },
       };
