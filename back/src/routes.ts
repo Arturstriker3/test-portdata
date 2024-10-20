@@ -8,6 +8,8 @@ const protectedRoutes = Router();
 routes.get('/contacts/:id', new ContactController().getOneContactById);
 routes.get('/contacts', new ContactController().getAllContacts);
 routes.post('/contacts', new ContactController().createContact);
+routes.patch('/contacts/:id', new ContactController().updateContact);
+routes.delete('/contacts/:id', new ContactController().deleteContact);
 
 routes.use(protectedRoutes);
 

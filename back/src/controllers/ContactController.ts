@@ -301,6 +301,15 @@ export class ContactController {
         );
       }
 
+      const nameRegex = /^(?=(?:\S+\s+){1,})(\S{3,}\s+\S{3,})/;
+      if (!nameRegex.test(name)) {
+        return next(
+          new BadRequestError(
+            "Name must contain at least two words, each with a minimum of three letters."
+          )
+        );
+      }
+
       const phoneRegex = /^\d{2}9\d{8}$/;
       if (!phoneRegex.test(phone)) {
         return next(
@@ -313,6 +322,215 @@ export class ContactController {
       await contactRepository.save(contact);
 
       return res.status(201).json(contact);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * @swagger
+   * /contacts/{id}:
+   *   patch:
+   *     tags:
+   *       - Contacts
+   *     summary: Update an existing contact
+   *     description: Updates an existing contact in the database.
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: The ID of the contact to update
+   *         schema:
+   *           type: integer
+   *           example: 1
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 example: "Artur Daniel"
+   *               phone:
+   *                 type: string
+   *                 example: "79900000000"
+   *             additionalProperties: false
+   *     responses:
+   *       200:
+   *         description: Contact updated successfully.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 id:
+   *                   type: integer
+   *                   example: 1
+   *                 name:
+   *                   type: string
+   *                   example: "Artur Daniel"
+   *                 phone:
+   *                   type: string
+   *                   example: "79900000000"
+   *       400:
+   *         description: Bad request. Invalid parameters.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Invalid parameters."
+   *       404:
+   *         description: Contact not found.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Contact not found."
+   *       500:
+   *         description: Internal server error.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Error updating contact"
+   */
+
+  async updateContact(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { name, phone } = req.body;
+
+    try {
+      const contact = await contactRepository.findOneBy({ id: Number(id) });
+      if (!contact) {
+        return next(new NotFoundError("Contact not found."));
+      }
+
+      const validFields = ["name", "phone"];
+      const extraFields = Object.keys(req.body).filter(
+        (field) => !validFields.includes(field)
+      );
+
+      if (extraFields.length > 0) {
+        return next(
+          new BadRequestError(`Invalid parameters: ${extraFields.join(", ")}`)
+        );
+      }
+
+      const nameRegex = /^(?=(?:\S+\s+){1,})(\S{3,}\s+\S{3,})/;
+      if (!nameRegex.test(name)) {
+        return next(
+          new BadRequestError(
+            "Name must contain at least two words, each with a minimum of three letters."
+          )
+        );
+      }
+
+      if (phone) {
+        const phoneRegex = /^\d{2}9\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+          return next(
+            new BadRequestError("Phone must be in the format XX9XXXXXXXX.")
+          );
+        }
+      }
+
+      if (name) contact.name = name;
+      if (phone) contact.phone = phone;
+
+      contact.updatedAt = new Date();
+
+      await contactRepository.save(contact);
+
+      return res.status(200).json(contact);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * @swagger
+   * /contacts/{id}:
+   *   delete:
+   *     tags:
+   *       - Contacts
+   *     summary: Delete a contact
+   *     description: Deletes a contact by ID.
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         description: The ID of the contact to delete.
+   *         schema:
+   *           type: integer
+   *           example: 1
+   *     responses:
+   *       204:
+   *         description: Contact deleted successfully.
+   *       400:
+   *         description: Bad request. Invalid parameters.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Invalid parameters."
+   *       404:
+   *         description: Contact not found.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Contact not found."
+   *       500:
+   *         description: Internal server error.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: "Error deleting contact."
+   */
+
+  async deleteContact(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    try {
+      if (!id) {
+        return next(new BadRequestError("Contact ID is required"));
+      }
+
+      if (Object.keys(req.params).length > 1 || !req.params.id) {
+        return next(
+          new BadRequestError('Invalid parameter. Only "id" is allowed.')
+        );
+      }
+
+      const contact = await contactRepository.findOneBy({ id: Number(id) });
+      if (!contact) {
+        return next(new NotFoundError("Contact not found."));
+      }
+
+      await contactRepository.remove(contact);
+
+      return res.status(204).send();
     } catch (error) {
       next(error);
     }
