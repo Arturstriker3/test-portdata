@@ -7,8 +7,8 @@
     <title>Test Portdata</title>
 
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/inputmask/dist/inputmask.min.js"></script>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;1,700&display=swap"
@@ -45,19 +45,53 @@
             <button
               class="text-white hover:text-black hover:bg-gray-50 hover:cursor-pointer flex items-center space-x-2 border-2 border-white rounded-md px-4 py-2"
             >
-            <span class="material-icons">add</span>
-            <span class="hidden md:inline">Adicionar</span>
+              <span class="material-icons">add</span>
+              <span class="hidden md:inline">Adicionar</span>
             </button>
           </nav>
         </div>
       </header>
 
       <div
-        class="max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 mt-6"
+        class="max-w-7xl mx-auto bg-white rounded-xl shadow-md space-y-4 mt-6 p-6"
       >
-        <h2 class="text-xl font-semibold text-center text-blue-500">
+        <h2 class="text-xl font-semibold text-blue-500 mb-4">
           Contatos {{ pageName }}
         </h2>
+
+        <table class="min-w-full table-auto">
+          <thead>
+            <tr>
+              <th class="px-4 py-2 text-left">Nome</th>
+              <th class="px-4 py-2 text-left">Telefone</th>
+              <th class="px-4 py-2 text-left">Data de Criação</th>
+              <th class="px-4 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="contact in contacts" :key="contact.id">
+              <td class="px-4 py-2">{{ contact.name }}</td>
+              <td class="px-4 py-2">{{ formatPhoneNumber(contact.phone) }}</td>
+              <td class="px-4 py-2">
+                {{ new Date(contact.createdAt).toLocaleDateString() }}
+              </td>
+              <td class="px-4 py-2 flex space-x-2 justify-center">
+                <button
+                  class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                  @click="editContact(contact.id)"
+                >
+                  Editar
+                </button>
+                <button
+                  class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  @click="deleteContact(contact.id)"
+                >
+                  Excluir
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -65,18 +99,74 @@
       import {
         createApp,
         ref,
+        onMounted,
       } from "https://unpkg.com/vue@3.3.4/dist/vue.esm-browser.js";
 
       const App = {
         setup() {
           const pageName = ref("Portdata");
+          const contacts = ref([]);
 
-          const changeMessage = () => {
-            description.value = "You clicked the button!";
+          const fetchContacts = async () => {
+            try {
+              const params = new URLSearchParams({
+                page: 1,
+                limit: 999999,
+              });
+
+              const response = await fetch(
+                `http://localhost:5050/contacts?${params}`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Failed to fetch contacts");
+              }
+
+              const data = await response.json();
+              contacts.value = data.contacts;
+            } catch (error) {
+              console.error(error);
+            }
           };
+
+          const editContact = (id) => {
+            alert(`Edit contact with ID: ${id}`);
+            // Adicione a lógica de edição aqui
+          };
+
+          const deleteContact = (id) => {
+            alert(`Delete contact with ID: ${id}`);
+            // Adicione a lógica de exclusão aqui
+          };
+
+          const formatPhoneNumber = (phoneNumber) => {
+            const cleaned = phoneNumber.replace(/\D/g, "");
+            if (cleaned.length === 11) {
+              return `(${cleaned.slice(0, 2)}) ${cleaned.slice(
+                2,
+                3
+              )} ${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
+            } else {
+              return phoneNumber;
+            }
+          };
+
+          onMounted(() => {
+            fetchContacts();
+          });
 
           return {
             pageName,
+            contacts,
+            editContact,
+            deleteContact,
+            formatPhoneNumber,
           };
         },
       };
