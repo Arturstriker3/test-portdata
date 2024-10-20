@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Test Portdata</title>
+
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Source Sans Pro", "Roboto", "Poppins", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100">
+    <div id="app" class="p-0">
+      <header class="bg-blue-500 text-white p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold">{{ pageName }}</span>
+          </div>
+          <nav class="space-x-6">
+            <button
+              class="text-white hover:text-black hover:bg-gray-50 hover:cursor-pointer flex items-center space-x-2 border-2 border-white rounded-md px-4 py-2"
+            >
+            <span class="material-icons">add</span>
+            <span class="hidden md:inline">Adicionar</span>
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      <div
+        class="max-w-sm mx-auto bg-white rounded-xl shadow-md space-y-4 mt-6"
+      >
+        <h2 class="text-xl font-semibold text-center text-blue-500">
+          Contatos {{ pageName }}
+        </h2>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        createApp,
+        ref,
+      } from "https://unpkg.com/vue@3.3.4/dist/vue.esm-browser.js";
+
+      const App = {
+        setup() {
+          const pageName = ref("Portdata");
+
+          const changeMessage = () => {
+            description.value = "You clicked the button!";
+          };
+
+          return {
+            pageName,
+          };
+        },
+      };
+
+      createApp(App).mount("#app");
+    </script>
+  </body>
+</html>
