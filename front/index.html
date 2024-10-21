@@ -38,7 +38,7 @@
       <header class="bg-blue-500 text-white p-4 shadow-md">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
           <div class="flex items-center space-x-3">
-            <span class="text-xl font-bold">{{ pageName }}</span>
+            <span class="text-2xl font-bold">{{ pageName }}</span>
           </div>
           <nav class="space-x-6">
             <button
@@ -60,7 +60,7 @@
         </h2>
 
         <div class="overflow-x-auto">
-          <table class="min-w-full table-auto">
+          <table class="min-w-full table-auto mb-4">
             <thead>
               <tr>
                 <th class="px-4 py-2 text-left">Nome</th>
@@ -72,7 +72,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="contact in contacts" :key="contact.id">
+              <tr
+                v-for="contact in contacts"
+                :key="contact.id"
+                class="border-b"
+              >
                 <td class="px-4 py-2">{{ contact.name }}</td>
                 <td class="px-4 py-2">
                   {{ formatPhoneNumber(contact.phone) }}
@@ -99,6 +103,9 @@
               </tr>
             </tbody>
           </table>
+          <p v-if="contacts.length === 0" class="text-center">
+            Sem dados para mostrar
+          </p>
         </div>
       </div>
 
