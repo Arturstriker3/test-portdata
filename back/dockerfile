@@ -1,0 +1,22 @@
+FROM node:slim
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 5050
+
+ENV DB_HOST=localhost
+ENV DB_PORT=3306
+ENV DB_USER=admin
+ENV DB_PASS=admin
+ENV DB_NAME=portdata_db
+ENV PORT=5050
+
+CMD ["npm", "run", "start"]

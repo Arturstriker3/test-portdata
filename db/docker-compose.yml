@@ -21,25 +21,6 @@ services:
       interval: 10s
       retries: 5
 
-  api:
-    build:
-      context: ./back
-      dockerfile: Dockerfile
-    container_name: api-container
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: admin
-      DB_PASS: admin
-      DB_NAME: portdata_db
-      PORT: 5050
-    ports:
-      - "5050:5050"
-    networks:
-      - app-network
-    depends_on:
-      - db
-
 volumes:
   db_data:
 
