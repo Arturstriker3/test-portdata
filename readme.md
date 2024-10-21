@@ -2,14 +2,13 @@
 
 Esse repositório contém o teste técnico portdata realizado com Vue/Node/MySql.
 
-## Table of Contents
+## Tabela de Conteúdo
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+- [Instalação](#instalação)
+- [Uso](#uso)
 
-## Installation
+
+## Instalação
 
 Intruções para rodar o projeto. Para rodar o projeto se faz necessário ter o docker composer instalado.
 
@@ -22,14 +21,8 @@ cd test-portdata
 
 # Com o composer instalado execute o comando para rodar o banco de dados e backend
 docker-compose up -d
-
 ```
 
-## Usage
+## Uso
 
-Examples of how to use the project.
-
-```bash
-# Run the project
-npm start
-```
+Para experimentar o projeto rodando precisa somente executar o index.html dentro da pasta front.
