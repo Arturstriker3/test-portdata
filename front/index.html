@@ -76,6 +76,7 @@
                 v-for="contact in contacts"
                 :key="contact.id"
                 class="border-b"
+                :class="getRowClass(contact)"
               >
                 <td class="px-4 py-2">{{ contact.name }}</td>
                 <td class="px-4 py-2">
@@ -419,6 +420,11 @@
             showEditModal.value = !showEditModal.value;
           };
 
+          const getRowClass = (contact) => {
+            const ddd = contact.phone.slice(0, 2);
+            return ddd === '11' ? 'bg-blue-600 text-white' : '';
+          };
+
           onMounted(() => {
             fetchContacts();
           });
@@ -437,6 +443,7 @@
             createContact,
             showEditModal,
             toggleEditModal,
+            getRowClass,
           };
         },
       };
