@@ -1,22 +1,18 @@
-FROM node:slim
+FROM node:20-slim
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --progress
+RUN npm install --no-optional --silent
 
 COPY . .
 
 RUN npm run build
 
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /app/wait-for-it.sh
+RUN chmod +x /app/wait-for-it.sh
+
 EXPOSE 5050
 
-ENV DB_HOST=localhost
-ENV DB_PORT=3306
-ENV DB_USER=admin
-ENV DB_PASS=admin
-ENV DB_NAME=portdata_db
-ENV PORT=5050
-
-CMD ["npm", "run", "start"]
+CMD ["./wait-for-it.sh", "db:3306", "--", "npm", "start"]
